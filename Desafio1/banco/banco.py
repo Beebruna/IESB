@@ -1,6 +1,7 @@
 import psycopg2
 from dataclasses import dataclass
 
+
 @dataclass
 class Banco:
     nome: str
@@ -8,7 +9,8 @@ class Banco:
     usuario: str
     ip: str
     porta: str
-    conexao: psycopg2.extensions.connection = None
+    conexao: psycopg2.extensions.connection
+
 
     @property
     def connect(self) -> None:
