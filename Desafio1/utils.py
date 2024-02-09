@@ -1,6 +1,7 @@
 import re
 import hashlib
 
+
 meses = {
     'jan': '01',
     'fev': '02',
@@ -93,6 +94,7 @@ def get_character_numeric(string: str) -> str:
 
 # Extrai o ano e mês de uma data do tipo Jan/2023
 def extract_date(data: str) -> tuple:
+    
     ano = data.split('/')[1]
     mes = meses[data.split('/')[0].lower()]
     return (ano, mes)
@@ -100,13 +102,15 @@ def extract_date(data: str) -> tuple:
 
 # Obtém o hash dos valores a serem inseridos no banco de dados
 def get_hash(valores: list) -> str:
+    
     valores_concat = ''.join(str(valor) for valor in valores)
     hash = hashlib.sha256(valores_concat.encode('utf-8')).hexdigest()
     return hash
 
 
 # Formata o nome das variáveis para se adaptar ao banco
-def format_column_name(nome: str, columns: list):
+def format_column_name(nome: str, columns: list) -> list:
+    
     if 'quantidade' in nome:
         prefixo = 'qtd_'
     else:
