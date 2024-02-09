@@ -8,7 +8,6 @@ from psycopg2.errors import UniqueViolation
 def scraper(nome: str, table):
 
     banco = banco_padrao()
-    banco.connect
 
     colunas = tuple(utils.format_column_name(nome, list(table.columns)))
     print(colunas)
@@ -37,7 +36,7 @@ if __name__ == "__main__":
     LINHA = ['Município']
     COLUNA = ['Grupo procedimento', 'Subgrupo proced.']
     CONTEUDO = ['Quantidade aprovada', 'Valor aprovado']
-    PERIODO = [data for data in periodo if data[0] != '2008']
+    PERIODO = [data for data in periodo if (data[0] not in ('2008'))]
 
     for row in LINHA:
         for column in COLUNA:
