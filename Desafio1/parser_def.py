@@ -1,11 +1,12 @@
 import utils
 import requests
 import pandas as pd
+from io import StringIO
 import urllib.parse as prs
 from bs4 import BeautifulSoup
 
 
-def request(tipo, url, linha=None, coluna=None, conteudo=None, periodo=None):
+def request(tipo, url, linha=None, coluna=None, conteudo=None, periodo=None) -> str | bytes:
     
     headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
@@ -23,18 +24,18 @@ def request(tipo, url, linha=None, coluna=None, conteudo=None, periodo=None):
                     'formato': 'table',
                     'mostre': 'Mostra'
                 }
-            response_content = requests.post(url, headers=headers, data=prs.urlencode(data, encoding='ISO-8859-1')).content
+            response_content = requests.post(url, headers=headers, data=prs.urlencode(data, encoding='ISO-8859-1')).text
             return response_content
         case 'get':
             response_content = requests.get(url, headers=headers).content
             return response_content
 
     
-def soup_object(response_content):
+def soup_object(response_content) -> BeautifulSoup:
     return BeautifulSoup(response_content, 'html.parser')
 
 
-def parser(url):
+def parser(url) -> tuple:
 
     soup = soup_object(request('get', url))
 
@@ -52,8 +53,13 @@ def parser(url):
 
 
 def get_table(url: str, linha: str, coluna: str, conteudo: str, periodo: tuple) -> pd.DataFrame:
+    
     response_content = request('post', url, linha, coluna, conteudo, periodo)
-    df = pd.read_html(response_content)[0]
+    
+    # Formata os valores para onde o . separa os decimais
+    html_text = response_content.replace('.', '').replace(',', '.')
+
+    df = pd.read_html(StringIO(html_text))[0]
     
     # Remove um nível do título
     df = df.droplevel(0, axis=1)
@@ -98,9 +104,5 @@ def get_table(url: str, linha: str, coluna: str, conteudo: str, periodo: tuple) 
     df.insert(2, 'ano', value=periodo[0])
     df.insert(3, 'mes', value=periodo[1])
     df['current_datetime'] = pd.Timestamp.now()
-
-    # Formata os valores para onde o . separa os decimais
-    for coluna in df.columns[5:-1]:
-        df[coluna] = df[coluna].str.replace('.', '').str.replace(',', '.')
 
     return df
